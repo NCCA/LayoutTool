@@ -1,9 +1,16 @@
 #!/usr/bin/env python
 try:  # support either PyQt5 or 6
     from PyQt5 import uic
-    from PyQt5.QtCore import QSize, Qt, QTimer,QPoint
+    from PyQt5.QtCore import QPoint, QSize, Qt, QTimer
     from PyQt5.QtGui import QColor, QPainter, QPen, QPixmap
-    from PyQt5.QtWidgets import QApplication, QDockWidget, QLabel, QMainWindow, QToolBar,QDialog
+    from PyQt5.QtWidgets import (
+        QApplication,
+        QDialog,
+        QDockWidget,
+        QLabel,
+        QMainWindow,
+        QToolBar,
+    )
 
     PyQtVersion = 5
 except ImportError:
@@ -11,7 +18,14 @@ except ImportError:
     from PyQt6 import uic
     from PyQt6.QtCore import QPoint, QSize, Qt, QTimer
     from PyQt6.QtGui import QColor, QPainter, QPen, QPixmap
-    from PyQt6.QtWidgets import QApplication, QDockWidget, QLabel, QMainWindow, QToolBar,QDialog
+    from PyQt6.QtWidgets import (
+        QApplication,
+        QDialog,
+        QDockWidget,
+        QLabel,
+        QMainWindow,
+        QToolBar,
+    )
 
     PyQtVersion = 6
 
@@ -40,7 +54,7 @@ class MainWindow(QMainWindow):
     active_colour: QColor
     spray_timer: QTimer
     added_assets: List[int] = []
-    needs_saving : bool = False
+    needs_saving: bool = False
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -48,28 +62,33 @@ class MainWindow(QMainWindow):
         # format splitter to correct size
         sizes = [round(self.width() / 0.2), round(self.width() / 0.8)]
         self.main_splitter.setSizes(sizes)
-        pixmap = QPixmap(800, 800)
-        pixmap.fill(Qt.GlobalColor.white)
-        self.image_label = QLabel()
-        self.image_label.setPixmap(pixmap)
+        self.create_new_image(400, 400)
         self.active_colour = QColor(255, 255, 255, 255)
-        # self.image_label.setScaledContents(True)
-        self.canvas_scroll_area.setWidget(self.image_label)
         self.add_asset.clicked.connect(self.show_add_asset_dialog)
         self.create_paint_toolbar()
         self.spray_timer = QTimer()
         self.spray_timer.timeout.connect(self.update_spray)
         self.action_new.triggered.connect(self.new_scene)
 
+    def new_scene(self):
+        if not self.needs_saving:
+            dialog = QDialog(self)
+            uic.loadUi("forms/NewScene.ui", dialog)
+            # dialog.show()
+            if dialog.exec():  # returns 1 if ok pressed
+                width = dialog.width.value()
+                height = dialog.height.value()
+                self.create_new_image(width, height)
 
+    def create_new_image(self, width: int, height: int):
+        pixmap = QPixmap(width, height)
+        pixmap.fill(Qt.GlobalColor.white)
+        self.image_label = QLabel()
+        self.image_label.setPixmap(pixmap)
+        self.image_label.setPixmap(pixmap)
+        self.canvas_scroll_area.widget().deleteLater()
+        self.canvas_scroll_area.setWidget(self.image_label)
 
-    def new_scene(self) :
-        if not self.needs_saving :
-            dialog=QDialog(self)
-            uic.loadUi("forms/NewScene.ui",dialog)
-            dialog.show()
-            # need to connect ok to a this class create new, have a think about how!
-    
     def create_paint_toolbar(self):
         self.brush_toolbox = QDockWidget()
         uic.loadUi("forms/BrushDockWidget.ui", self.brush_toolbox)
@@ -77,13 +96,17 @@ class MainWindow(QMainWindow):
 
     def mouseMoveEvent(self, event):
         if self.last_x is None:  # First event.
-            position = self.image_label.mapFrom(self, event.position() if PyQtVersion ==6 else event.pos())
+            position = self.image_label.mapFrom(
+                self, event.position() if PyQtVersion == 6 else event.pos()
+            )
 
             self.last_x = position.x()
             self.last_y = position.y()
             return  # Ignore the first time.
 
-        position = self.image_label.mapFrom(self, event.position() if PyQtVersion ==6 else event.pos())
+        position = self.image_label.mapFrom(
+            self, event.position() if PyQtVersion == 6 else event.pos()
+        )
         active_button = (
             self.brush_toolbox.paint_button_group.checkedButton().objectName()
         )
@@ -129,7 +152,9 @@ class MainWindow(QMainWindow):
             self.spray_timer.stop()
 
     def mousePressEvent(self, event):
-        position = self.image_label.mapFrom(self, event.position() if PyQtVersion ==6 else event.pos())
+        position = self.image_label.mapFrom(
+            self, event.position() if PyQtVersion == 6 else event.pos()
+        )
         self.current_x = position.x()
         self.current_y = position.y()
 
