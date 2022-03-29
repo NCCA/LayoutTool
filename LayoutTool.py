@@ -19,6 +19,7 @@ import math
 import sys
 from enum import Enum
 from random import randint, random
+from typing import List
 
 from AddAssetDialog import AssetDialog
 from lt import app_global
@@ -38,6 +39,7 @@ class MainWindow(QMainWindow):
     current_y: int = None
     active_colour: QColor
     spray_timer: QTimer
+    added_assets: List[int] = []
 
     def __init__(self):
         super(MainWindow, self).__init__()

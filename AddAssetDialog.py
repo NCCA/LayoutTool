@@ -65,32 +65,33 @@ class AssetDialog(QDialog):
             for index in sorted(self.view.selectionModel().selectedRows()):
                 row = index.row()
                 image = self.query.data(
-                    self.query.index(row, 4), Qt.ItemDataRole.DecorationRole
+                    self.query.index(row, 1), Qt.ItemDataRole.DecorationRole
                 )
                 name = self.query.data(
                     self.query.index(row, 0), Qt.ItemDataRole.DisplayRole
                 )
                 database_key = self.query.data(
-                    self.query.index(row, 8), Qt.ItemDataRole.DisplayRole
+                    self.query.index(row, 5), Qt.ItemDataRole.DisplayRole
                 )
-
-                img = QPixmap(image)
-                icon = QIcon(img)
-                button = QToolButton()
-                button.setIcon(icon)
-                button.setIconSize(QSize(128, 128))
-                button.setIconSize(QSize(100, 100))
-                new_colour = ColourTable.get_rgb()
-                colour = QColor(new_colour[0], new_colour[1], new_colour[2])
-                button.setProperty("colour", colour)
-                button.setStyleSheet(
-                    f"background-color : rgb({colour.red()},{colour.green()},{colour.blue()} ) ; border :5px;"
-                )
-                button.setToolTip(name)
-                button.setProperty("ID", database_key)
-                button.setCheckable(True)
-                button.clicked.connect(self.parent().choose_active_asset)
-                num_widgets = self.parent().asset_layout.count()
-                row = num_widgets / 4
-                col = num_widgets % 4
-                self.parent().asset_layout.addWidget(button, row, col)
+                if database_key not in self.parent().added_assets:
+                    img = QPixmap(image)
+                    icon = QIcon(img)
+                    button = QToolButton()
+                    button.setIcon(icon)
+                    button.setIconSize(QSize(128, 128))
+                    button.setIconSize(QSize(100, 100))
+                    new_colour = ColourTable.get_rgb()
+                    colour = QColor(new_colour[0], new_colour[1], new_colour[2])
+                    button.setProperty("colour", colour)
+                    button.setStyleSheet(
+                        f"background-color : rgb({colour.red()},{colour.green()},{colour.blue()} ) ; border :5px;"
+                    )
+                    button.setToolTip(name)
+                    button.setProperty("ID", database_key)
+                    button.setCheckable(True)
+                    button.clicked.connect(self.parent().choose_active_asset)
+                    num_widgets = self.parent().asset_layout.count()
+                    row = num_widgets / 4
+                    col = num_widgets % 4
+                    self.parent().asset_layout.addWidget(button, row, col)
+                    self.parent().added_assets.append(database_key)
