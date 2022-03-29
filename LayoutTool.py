@@ -3,7 +3,7 @@ try:  # support either PyQt5 or 6
     from PyQt5 import uic
     from PyQt5.QtCore import QSize, Qt, QTimer,QPoint
     from PyQt5.QtGui import QColor, QPainter, QPen, QPixmap
-    from PyQt5.QtWidgets import QApplication, QDockWidget, QLabel, QMainWindow, QToolBar
+    from PyQt5.QtWidgets import QApplication, QDockWidget, QLabel, QMainWindow, QToolBar,QDialog
 
     PyQtVersion = 5
 except ImportError:
@@ -11,7 +11,7 @@ except ImportError:
     from PyQt6 import uic
     from PyQt6.QtCore import QPoint, QSize, Qt, QTimer
     from PyQt6.QtGui import QColor, QPainter, QPen, QPixmap
-    from PyQt6.QtWidgets import QApplication, QDockWidget, QLabel, QMainWindow, QToolBar
+    from PyQt6.QtWidgets import QApplication, QDockWidget, QLabel, QMainWindow, QToolBar,QDialog
 
     PyQtVersion = 6
 
@@ -40,6 +40,7 @@ class MainWindow(QMainWindow):
     active_colour: QColor
     spray_timer: QTimer
     added_assets: List[int] = []
+    needs_saving : bool = False
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -58,7 +59,17 @@ class MainWindow(QMainWindow):
         self.create_paint_toolbar()
         self.spray_timer = QTimer()
         self.spray_timer.timeout.connect(self.update_spray)
+        self.action_new.triggered.connect(self.new_scene)
 
+
+
+    def new_scene(self) :
+        if not self.needs_saving :
+            dialog=QDialog(self)
+            uic.loadUi("forms/NewScene.ui",dialog)
+            dialog.show()
+            # need to connect ok to a this class create new, have a think about how!
+    
     def create_paint_toolbar(self):
         self.brush_toolbox = QDockWidget()
         uic.loadUi("forms/BrushDockWidget.ui", self.brush_toolbox)
