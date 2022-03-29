@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 try:  # support either PyQt5 or 6
     from PyQt5 import uic
-    from PyQt5.QtCore import QSize, Qt, Qtimer
+    from PyQt5.QtCore import QSize, Qt, QTimer,QPoint
     from PyQt5.QtGui import QColor, QPainter, QPen, QPixmap
     from PyQt5.QtWidgets import QApplication, QDockWidget, QLabel, QMainWindow, QToolBar
 
@@ -66,13 +66,13 @@ class MainWindow(QMainWindow):
 
     def mouseMoveEvent(self, event):
         if self.last_x is None:  # First event.
-            position = self.image_label.mapFrom(self, event.position())
+            position = self.image_label.mapFrom(self, event.position() if PyQtVersion ==6 else event.pos())
 
             self.last_x = position.x()
             self.last_y = position.y()
             return  # Ignore the first time.
 
-        position = self.image_label.mapFrom(self, event.position())
+        position = self.image_label.mapFrom(self, event.position() if PyQtVersion ==6 else event.pos())
         active_button = (
             self.brush_toolbox.paint_button_group.checkedButton().objectName()
         )
@@ -118,7 +118,7 @@ class MainWindow(QMainWindow):
             self.spray_timer.stop()
 
     def mousePressEvent(self, event):
-        position = self.image_label.mapFrom(self, event.position())
+        position = self.image_label.mapFrom(self, event.position() if PyQtVersion ==6 else event.pos())
         self.current_x = position.x()
         self.current_y = position.y()
 
